@@ -1,104 +1,84 @@
+# Task One
 
-# Financial News Analysis Pipeline
-
-## Overview
-
-This repository provides a robust pipeline for analyzing financial news data and exploring correlations between news sentiment and stock market movements. It includes exploratory data analysis (EDA), sentiment analysis, and time series analysis to uncover insights from financial news datasets.
-
----
+A Python script for data processing and analysis, designed for seamless integration into workflows or automation pipelines. This project was originally developed in a Jupyter Notebook and then converted into a standalone Python script (`task_one.py`).
 
 ## Features
 
-### 1. **Exploratory Data Analysis (EDA)**
-- Analyze distribution and trends in news headlines.
-- Investigate publisher contributions and publication frequency.
+- **Data Loading**: Import data from multiple sources like databases, files, or APIs.
+- **Data Processing**: Transform and analyze data using modular functions.
+- **Ease of Use**: Structured for scalability and reusability.
 
-### 2. **Sentiment Analysis**
-- Utilizes `TextBlob` for sentiment classification (positive, negative, neutral).
-- Extracts sentiment polarity for each headline.
-- Provides visualizations of sentiment distributions.
+## Requirements
 
-### 3. **Time Series Analysis**
-- Analyzes trends in publication frequency and sentiment over time.
-- Identifies patterns in publication dates and times for actionable insights.
+Ensure the following prerequisites are met:
 
-### 4. **Git Integration**
-- Structured for collaboration and CI/CD workflows using GitHub Actions.
+- Python 3.8 or later
+- Required libraries:
+  - `pandas`
+  - `psycopg2`
+  - `sqlalchemy`
+  - `python-dotenv`
 
----
+## Installation
 
-## Project Structure
+1. Clone the repository:
 
-```plaintext
-├── .vscode/
-│   └── settings.json            # VSCode workspace settings
-├── .github/
-│   └── workflows/
-│       └── unittests.yml        # GitHub Actions CI for testing
-├── .gitignore                   # Git ignore file
-├── requirements.txt             # Python dependencies
-├── README.md                    # Project documentation
-├── src/
-│   ├── __init__.py
-│   └── analysis_pipeline.py     # Core analysis functions
-├── notebooks/
-│   ├── __init__.py
-│   ├── exploratory_analysis.ipynb # Initial exploration
-│   └── analysis.ipynb           # Advanced analysis with modular functions
-├── tests/
-│   ├── __init__.py
-│   └── test_analysis.py         # Unit tests for the pipeline
-└── scripts/
-    ├── __init__.py
-    └── run_analysis.py          # Script for automating the pipeline
-```
-
----
-
-## Getting Started
-
-### Prerequisites
-- Python 3.8+
-- Git
-
-### Setup Instructions
-1. **Clone the repository:**
    ```bash
-   git clone https://github.com/tsega19/kf_fin_news_sentiment_analysis.git
-   cd <repository_directory>
+   git clone https://github.com/tsega19/TellCo-Telecom-Analytics-Dashboard.git
+   cd task_one
    ```
 
-2. **Create and activate a virtual environment:**
-   ```bash
-   python3 -m venv env
-   source env/bin/activate  # On Windows: env\Scriptsctivate
-   ```
+2. Install dependencies:
 
-3. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Ensure the directory structure matches the project structure described above.**
+3. Create a `.env` file in the root directory to store environment variables:
 
----
+   ```
+   DB_HOST=your_database_host
+   DB_PORT=your_database_port
+   DB_NAME=your_database_name
+   DB_USER=your_database_user
+   DB_PASSWORD=your_database_password
+   ```
 
 ## Usage
 
-### 1. **Run Analysis Pipeline:**
-   Execute the pipeline script:
+1. Open the `task_one.py` script and customize it as needed for your data sources and processing tasks.
+
+2. Execute the script:
+
    ```bash
-<<<<<<< Updated upstream
-   python scripts/*.py
-=======
-   python scripts/*.
->>>>>>> Stashed changes
+   python task_one.py
    ```
 
-### 2. **Interactive Analysis:**
-   Open and execute the notebooks in the `notebooks/` folder for EDA and visualization:
-   ```bash
-   jupyter notebook
-   ```
+3. For database operations, ensure your database server is running and accessible.
 
----
+## File Structure
+
+```
+.
+├── task_one.py           # Main Python script
+├── requirements.txt      # Dependencies list
+├── .env                  # Environment variables (not included in the repo)
+├── README.md             # Documentation
+```
+
+## Contributing
+
+Contributions are welcome! If you have suggestions or improvements, please:
+
+1. Fork the repository.
+2. Create a new branch for your changes.
+3. Submit a pull request with a clear description of your modifications.
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for more details.
+
+## Acknowledgments
+
+Special thanks to all contributors and the open-source community for providing tools and inspiration for this project.
+
