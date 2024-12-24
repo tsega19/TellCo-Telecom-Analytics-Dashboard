@@ -1,6 +1,7 @@
 psycopg2
 python-dotenv
 pandas
+streamlit
 psycopg2-binary
 sqlalchemy
 matplotlib
