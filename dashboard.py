@@ -2,16 +2,9 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
-import os
-import sys
-sys.path.append(os.path.abspath('../scripts'))
-# Import utility scripts from the `scripts` folder
-from scripts.load_data import load_data_from_postgres
-from overview_analysis import describe_variables
-from engagement_analysis import aggregate_metrics, normalize_and_cluster
-from experience_analytics import aggregate_per_customer, kmeans_clustering
+from load_data import load_data_from_postgres
+from new_engagement_analysis import aggregate_metrics, top_10_customers
+from expriance_analytics import aggregate_per_customer, kmeans_clustering, treat_missing_and_outliers
 from satisfaction_analysis import calculate_satisfaction_score
 
 # Configure Streamlit
@@ -25,54 +18,43 @@ page = st.sidebar.radio("Go to", ["User Overview Analysis",
                                   "Satisfaction Analysis"])
 
 # Database query for loading data
-QUERY = "SELECT * FROM telecom_data"  # Update this with your actual table or query
+query = "SELECT * FROM xdr_data"
+df = load_data_from_postgres(query)
+st.write(df)  # Display the dataframe to verify data loading
 
-# Cache data loading for efficiency
-@st.cache
-def load_data():
-    return load_data_from_postgres(QUERY)
-
-# Load data
-df = load_data()
-
-# Define functions for each page
-def user_overview_analysis():
-    st.title("User Overview Analysis")
-    st.subheader("Descriptive Statistics")
-    description, data_types = describe_variables(df)
-    st.write("### Data Description:")
-    st.write(description)
-    st.write("### Data Types:")
-    st.write(data_types)
-
-    st.subheader("Graphical Univariate Analysis")
-    for column in df.select_dtypes(include=[float, int]).columns:
-        fig, ax = plt.subplots()
-        sns.histplot(df[column], kde=True, ax=ax)
-        ax.set_title(f"Distribution of {column}")
-        st.pyplot(fig)
-
-
+# Define the analysis functions
 def user_engagement_analysis():
     st.title("User Engagement Analysis")
     st.subheader("Engagement Metrics")
-    user_aggregated_data = aggregate_metrics(df)
-    st.dataframe(user_aggregated_data.head())
+    engagement_data = aggregate_metrics(df)
+    st.dataframe(engagement_data.head())
 
-    st.subheader("Engagement Clustering")
-    user_aggregated_data, kmeans = normalize_and_cluster(user_aggregated_data)
+    st.subheader("Top 10 Customers by Engagement Metrics")
+    top_10_sessions, top_10_duration, top_10_data_volume = top_10_customers(engagement_data)
+
     fig, ax = plt.subplots()
-    sns.scatterplot(data=user_aggregated_data, x='sessions_frequency', 
-                    y='total_data_volume', hue='cluster', palette='viridis', ax=ax)
-    ax.set_title("Engagement Clusters")
+    sns.barplot(x=top_10_sessions['sessions_frequency'], y=top_10_sessions['MSISDN/Number'], ax=ax)
+    ax.set_title("Top 10 Customers by Sessions Frequency")
     st.pyplot(fig)
 
+    fig, ax = plt.subplots()
+    sns.barplot(x=top_10_duration['total_session_duration'], y=top_10_duration['MSISDN/Number'], ax=ax)
+    ax.set_title("Top 10 Customers by Total Session Duration")
+    st.pyplot(fig)
+
+    fig, ax = plt.subplots()
+    sns.barplot(x=top_10_data_volume['total_data_volume'], y=top_10_data_volume['MSISDN/Number'], ax=ax)
+    ax.set_title("Top 10 Customers by Total Data Volume")
+    st.pyplot(fig)
 
 def experience_analysis():
     st.title("Experience Analysis")
     st.subheader("Experience Metrics")
     experience_data = aggregate_per_customer(df)
     st.dataframe(experience_data.head())
+
+    # Clean the data to handle missing values
+    experience_data = treat_missing_and_outliers(experience_data)
 
     st.subheader("Experience Clustering")
     experience_data, kmeans = kmeans_clustering(experience_data, n_clusters=3)
@@ -82,41 +64,19 @@ def experience_analysis():
     ax.set_title("Experience Clusters")
     st.pyplot(fig)
 
-
 def satisfaction_analysis():
     st.title("Satisfaction Analysis")
     st.subheader("Satisfaction Scores")
-    # Assume engagement and experience scores are precomputed and merged
-    user_aggregated_data = aggregate_metrics(df)
-    experience_data = aggregate_per_customer(df)
-
-    # Merge engagement and experience scores
-    user_aggregated_data['engagement_score'] = user_aggregated_data['sessions_frequency']
-    experience_data['experience_score'] = experience_data['avg_rtt']
-    satisfaction_data = pd.merge(user_aggregated_data[['MSISDN/Number', 'engagement_score']],
-                                 experience_data[['MSISDN/Number', 'experience_score']], 
-                                 on='MSISDN/Number')
-    satisfaction_data = calculate_satisfaction_score(satisfaction_data)
+    satisfaction_data = calculate_satisfaction_score(df)
     st.dataframe(satisfaction_data.head())
 
-    st.subheader("Satisfaction Clustering")
-    scaler = StandardScaler()
-    satisfaction_metrics = ['engagement_score', 'experience_score']
-    satisfaction_data[satisfaction_metrics] = scaler.fit_transform(satisfaction_data[satisfaction_metrics])
-    kmeans = KMeans(n_clusters=3, random_state=42)
-    satisfaction_data['cluster'] = kmeans.fit_predict(satisfaction_data[satisfaction_metrics])
-
     fig, ax = plt.subplots()
-    sns.scatterplot(data=satisfaction_data, x='engagement_score', y='satisfaction_score', 
-                    hue='cluster', palette='plasma', ax=ax)
-    ax.set_title("Satisfaction Clusters")
+    sns.histplot(satisfaction_data['satisfaction_score'], bins=20, kde=True, ax=ax)
+    ax.set_title("Distribution of Satisfaction Scores")
     st.pyplot(fig)
 
-
-# Page navigation logic
-if page == "User Overview Analysis":
-    user_overview_analysis()
-elif page == "User Engagement Analysis":
+# Call the appropriate analysis function based on the selected page
+if page == "User Engagement Analysis":
     user_engagement_analysis()
 elif page == "Experience Analysis":
     experience_analysis()
