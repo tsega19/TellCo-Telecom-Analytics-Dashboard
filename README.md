@@ -40,7 +40,7 @@ This project provides a comprehensive dashboard for exploring these insights, en
 
 1. Run the dashboard:
     ```sh
-    python dashboard.py
+    streamlit python dashboard.py
     ```
 
 2. Explore the Jupyter notebooks in the [notebooks](http://_vscodecontentref_/6) directory for detailed analysis:
